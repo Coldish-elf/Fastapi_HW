@@ -8,6 +8,7 @@ from app.database import SessionLocal, engine
 from app.models import Base, Task, User
 from app.schemas import TaskCreate, TaskRead, UserCreate, UserRead
 from app.auth import create_access_token, get_password_hash, verify_password, get_current_user
+from app.cache import get_cached_tasks, set_cached_tasks, generate_cache_key, invalidate_user_cache
 
 
 def startup_event(app: FastAPI):
@@ -46,6 +47,7 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db), username: str =
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
+    invalidate_user_cache(username)
     return db_task
 
 @app.get("/tasks", response_model=List[TaskRead])
@@ -56,6 +58,12 @@ def read_tasks(
     db: Session = Depends(get_db),
     username: str = Depends(get_current_user)
 ):
+    cache_key = generate_cache_key(username, sort_by, search, top)
+    cached_result = get_cached_tasks(cache_key)
+    
+    if cached_result:
+        return [TaskRead(**task) for task in cached_result]
+    
     query = db.query(Task)
     owner = db.query(User).filter(User.username == username).first() if username else None
     if owner:
@@ -67,7 +75,10 @@ def read_tasks(
         query = query.order_by(getattr(Task, sort_by))
     if top is not None:
         query = query.order_by(Task.priority.desc()).limit(top)
-    return query.all()
+    
+    result = query.all()
+    set_cached_tasks(cache_key, result)
+    return result
 
 @app.put("/tasks/{task_id}", response_model=TaskRead)
 def update_task(
@@ -85,6 +96,7 @@ def update_task(
     db_task.priority = update_data.priority
     db.commit()
     db.refresh(db_task)
+    invalidate_user_cache(username)
     return db_task
 
 @app.delete("/tasks/{task_id}")
@@ -97,6 +109,7 @@ def delete_task(task_id: int, db: Session = Depends(get_db), username: str = Dep
         raise HTTPException(status_code=403)
     db.delete(db_task)
     db.commit()
+    invalidate_user_cache(username)
     return {"detail": "Task deleted"}
 
 @app.get("/")
