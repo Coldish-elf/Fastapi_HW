@@ -25,15 +25,18 @@
 
 ```
 Streamlit_hw\
-├── main.py                  # Запуск приложения
-├── README.md                # Информация о проекте, инструкциях по запуску и описании функционала
-├── requirements.txt         # Зависимости проекта
-├── .gitignore               # Файлы, исключенные из контроля версий
+├── main.py                 # Запуск приложения
+├── README.md               
+├── requirements.txt        
+├── .gitignore              
+├── Dockerfile              
+├── docker-compose.yml      
+├── tasks.db                # БД
 └── app\
    ├── app.py               # FastAPI-приложение и маршруты
    ├── models.py            # Модели SQLAlchemy и Pydantic-схемы
    ├── schemas.py           # Модели SQLAlchemy и Pydantic-схемы
    ├── database.py          # Настройка базы данных
    ├── auth.py              # Функции аутентификации и шифрования
-   ├── sidebar.py           # Тестовые запросы к API  
+   ├──test_requests.py      # Тестовые запросы к API  
 ```
