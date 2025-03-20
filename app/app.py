@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import timedelta
 
-from database import SessionLocal, engine
-from models import Base, Task, User
-from schemas import TaskCreate, TaskRead, UserCreate, UserRead
-from auth import create_access_token, get_password_hash, verify_password, get_current_user
+from app.database import SessionLocal, engine
+from app.models import Base, Task, User
+from app.schemas import TaskCreate, TaskRead, UserCreate, UserRead
+from app.auth import create_access_token, get_password_hash, verify_password, get_current_user
 
 
 def startup_event(app: FastAPI):
