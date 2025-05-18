@@ -1,6 +1,6 @@
 # FastAPI Task Management Application
 ![Tests](https://github.com/Coldish-elf/Fastapi_HW/actions/workflows/ci.yml/badge.svg)
-[![codecov](https://codecov.io/gh/Coldish-elf/Fastapi_HW/branch/main/graph/badge.svg)](https://codecov.io/gh/Coldish-elf/Fastapi_HW)
+![Coverage](coverage.svg)
 
 ## Функционал проекта
 
