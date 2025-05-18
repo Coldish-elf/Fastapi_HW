@@ -1,13 +1,24 @@
 import redis
 import json
+import os
 from typing import Optional, List
 from app.schemas import TaskRead
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
-CACHE_TTL = 300  
 
-def generate_cache_key(username: str, sort_by: Optional[str] = None, search: Optional[str] = None, top: Optional[int] = None) -> str:
+redis_host = os.getenv("REDIS_HOST", "localhost")
+redis_client = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
+
+CACHE_TTL = 300
+
+
+def generate_cache_key(
+    username: str,
+    sort_by: Optional[str] = None,
+    search: Optional[str] = None,
+    top: Optional[int] = None,
+) -> str:
     return f"tasks:{username}:sort={sort_by}:search={search}:top={top}"
+
 
 def get_cached_tasks(cache_key: str) -> Optional[List[dict]]:
     cached_data = redis_client.get(cache_key)
@@ -15,9 +26,11 @@ def get_cached_tasks(cache_key: str) -> Optional[List[dict]]:
         return json.loads(cached_data)
     return None
 
+
 def set_cached_tasks(cache_key: str, tasks: List[TaskRead]):
-    tasks_data = [task.model_dump(mode='json') for task in tasks]  
+    tasks_data = [task.model_dump(mode="json") for task in tasks]
     redis_client.setex(cache_key, CACHE_TTL, json.dumps(tasks_data))
+
 
 def invalidate_user_cache(username: str):
     pattern = f"tasks:{username}:*"

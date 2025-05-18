@@ -69,6 +69,8 @@ def test_read_tasks_sorting(client: TestClient, auth_headers: dict, db_session: 
 
     response_status = client.get("/tasks?sort_by=status", headers=auth_headers)
     assert response_status.status_code == 200
+    tasks_status = response_status.json()
+    assert [task["status"] for task in tasks_status] == ["done", "in_progress", "pending"]
 
 def test_read_tasks_search(client: TestClient, auth_headers: dict, db_session: Session, test_user):
     user = db_session.query(User).filter(User.username == test_user["username"]).first()

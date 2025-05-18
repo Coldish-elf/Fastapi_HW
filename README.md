@@ -1,5 +1,5 @@
 # FastAPI Task Management Application
-![Tests](https://github.com/Coldish-elf/Fastapi_HW/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/Coldish-elf/Fastapi_HW/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/Coldish-elf/Fastapi_HW/branch/main/graph/badge.svg)](https://codecov.io/gh/Coldish-elf/Fastapi_HW)
 
 ## Функционал проекта
@@ -49,14 +49,6 @@
 
 ## Тестирование
 
-### Статус CI/CD
-
-![Tests](https://github.com/Coldish-elf/Fastapi_HW/actions/workflows/tests.yml/badge.svg)
-
-### Покрытие кода
-
-[![codecov](https://codecov.io/gh/Coldish-elf/Fastapi_HW/branch/main/graph/badge.svg)](https://codecov.io/gh/Coldish-elf/Fastapi_HW)
-
 ### Запуск тестов
 Для запуска тестов выполните команду:
 ```bash
@@ -80,7 +72,7 @@ pytest --cov=app --cov-report=html
 ## Структура проекта
 
 ```
-Streamlit_hw\
+Fastapi_HW\
 ├── main.py                 # Запуск приложения
 ├── README.md               
 ├── requirements.txt        
@@ -88,17 +80,22 @@ Streamlit_hw\
 ├── Dockerfile              
 ├── docker-compose.yml      
 ├── tasks.db                # БД
+├── .coveragerc             # Конфигурация для покрытия кода
+├── .github\
+│   └── workflows\
+│       └── ci.yml          # CI/CD конфигурация для GitHub Actions
 └── app\
+   ├── __init__.py          # Инициализация пакета
    ├── app.py               # FastAPI-приложение и маршруты
-   ├── models.py            # Модели SQLAlchemy и Pydantic-схемы
-   ├── schemas.py           # Модели SQLAlchemy и Pydantic-схемы
+   ├── models.py            # SQLAlchemy модели
+   ├── schemas.py           # Pydantic-схемы
    ├── database.py          # Настройка базы данных
-   ├── auth.py              # Функции аутентификации и шифрования
+   └── auth.py              # Аутентификация и шифрование
 └── tests\
-   ├── conftest.py          # Фикстуры
+   ├── conftest.py          # Фикстуры для тестов
    ├── locustfile.py        # Сценарии нагрузочного тестирования
-   ├── test_api_tasks.py    # Тесты для задач          (CRUD, сортировка, поискдоступ).
-   ├── test_api_users.py    # Тесты для пользователей  (регистрация, авторизация)
+   ├── test_api_tasks.py    # Тесты для задач (CRUD, сортировка, поиск)
+   ├── test_api_users.py    # Тесты для пользователей (регистрация, авторизация)
    ├── test_auth.py         # Тесты для аутентификации (хэширование паролей, токены)
-   ├── test_cache.py        # Тесты для кэширования    (генерация ключей, установка, удаление)
+   ├── test_cache.py        # Тесты для кэширования (генерация ключей, установка, удаление)
 ```

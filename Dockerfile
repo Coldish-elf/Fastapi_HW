@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11.16-slim-bullseye
 WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
