@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
-from datetime import timedelta
+from datetime import datetime, timezone, timedelta
+from contextlib import asynccontextmanager
 
 from app.database import SessionLocal, engine
 from app.models import Base, Task, User
@@ -11,9 +13,10 @@ from app.auth import create_access_token, get_password_hash, verify_password, ge
 from app.cache import get_cached_tasks, set_cached_tasks, generate_cache_key, invalidate_user_cache
 
 
-def startup_event(app: FastAPI):
+@asynccontextmanager
+async def startup_event(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-    yield
+    yield 
 
 app = FastAPI(lifespan=startup_event)
 
@@ -28,7 +31,11 @@ def get_db():
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = User(username=user.username, password_hash=get_password_hash(user.password))
     db.add(db_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already exists")
     db.refresh(db_user)
     return db_user
 
@@ -47,7 +54,8 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db), username: str =
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
-    invalidate_user_cache(username)
+    if username:
+        invalidate_user_cache(username)
     return db_task
 
 @app.get("/tasks", response_model=List[TaskRead])
@@ -76,9 +84,12 @@ def read_tasks(
     if top is not None:
         query = query.order_by(Task.priority.desc()).limit(top)
     
-    result = query.all()
-    set_cached_tasks(cache_key, result)
-    return result
+    db_tasks_result = query.all()
+    
+    pydantic_tasks = [TaskRead.model_validate(db_task_item) for db_task_item in db_tasks_result]
+    
+    set_cached_tasks(cache_key, pydantic_tasks)
+    return pydantic_tasks
 
 @app.put("/tasks/{task_id}", response_model=TaskRead)
 def update_task(
@@ -96,7 +107,8 @@ def update_task(
     db_task.priority = update_data.priority
     db.commit()
     db.refresh(db_task)
-    invalidate_user_cache(username)
+    if username:
+        invalidate_user_cache(username)
     return db_task
 
 @app.delete("/tasks/{task_id}")
@@ -109,7 +121,8 @@ def delete_task(task_id: int, db: Session = Depends(get_db), username: str = Dep
         raise HTTPException(status_code=403)
     db.delete(db_task)
     db.commit()
-    invalidate_user_cache(username)
+    if username:
+        invalidate_user_cache(username)
     return {"detail": "Task deleted"}
 
 @app.get("/")

@@ -16,7 +16,7 @@ def get_cached_tasks(cache_key: str) -> Optional[List[dict]]:
     return None
 
 def set_cached_tasks(cache_key: str, tasks: List[TaskRead]):
-    tasks_data = [task.model_dump() for task in tasks]
+    tasks_data = [task.model_dump(mode='json') for task in tasks]  
     redis_client.setex(cache_key, CACHE_TTL, json.dumps(tasks_data))
 
 def invalidate_user_cache(username: str):

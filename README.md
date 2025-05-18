@@ -1,4 +1,7 @@
 # FastAPI Task Management Application
+![Tests](https://github.com/Coldish-elf/Fastapi_HW/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/Coldish-elf/Fastapi_HW/branch/main/graph/badge.svg)](https://codecov.io/gh/Coldish-elf/Fastapi_HW)
+
 ## Функционал проекта
 
 - **CRUD задачи:**  
@@ -42,6 +45,37 @@
    docker-compose up --build
    ```
 2. Приложение будет доступно по адресу http://localhost:8000.
+---
+
+## Тестирование
+
+### Статус CI/CD
+
+![Tests](https://github.com/Coldish-elf/Fastapi_HW/actions/workflows/tests.yml/badge.svg)
+
+### Покрытие кода
+
+[![codecov](https://codecov.io/gh/Coldish-elf/Fastapi_HW/branch/main/graph/badge.svg)](https://codecov.io/gh/Coldish-elf/Fastapi_HW)
+
+### Запуск тестов
+Для запуска тестов выполните команду:
+```bash
+pytest
+```
+
+### Запуск тестов с подробным выводом
+Чтобы увидеть подробный вывод тестов, выполните:
+```bash
+pytest -v
+```
+
+### Генерация отчета о покрытии кода
+Для проверки покрытия кода выполните:
+```bash
+pytest --cov=app --cov-report=html
+```
+После выполнения команды будет создана папка `htmlcov`, содержащая файл `index.html`. Откройте этот файл в браузере, чтобы увидеть визуализацию покрытия кода.
+---
 
 ## Структура проекта
 
@@ -60,5 +94,11 @@ Streamlit_hw\
    ├── schemas.py           # Модели SQLAlchemy и Pydantic-схемы
    ├── database.py          # Настройка базы данных
    ├── auth.py              # Функции аутентификации и шифрования
-   ├──test_requests.py      # Тестовые запросы к API  
+└── tests\
+   ├── conftest.py          # Фикстуры
+   ├── locustfile.py        # Сценарии нагрузочного тестирования
+   ├── test_api_tasks.py    # Тесты для задач          (CRUD, сортировка, поискдоступ).
+   ├── test_api_users.py    # Тесты для пользователей  (регистрация, авторизация)
+   ├── test_auth.py         # Тесты для аутентификации (хэширование паролей, токены)
+   ├── test_cache.py        # Тесты для кэширования    (генерация ключей, установка, удаление)
 ```

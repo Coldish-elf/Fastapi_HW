@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 
 Base = declarative_base()
 
@@ -16,8 +16,7 @@ class Task(Base):
     title = Column(String, index=True)
     description = Column(String)
     status = Column(String, default="в ожидании")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc)) 
     priority = Column(Integer, default=0)
-    # Optional user linkage
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     owner = relationship("User")

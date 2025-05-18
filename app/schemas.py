@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict 
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class TaskCreate(BaseModel):
     title: str
@@ -15,8 +15,8 @@ class TaskRead(BaseModel):
     status: str
     created_at: datetime
     priority: int
-    class Config:
-        orm_mode = True
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class UserCreate(BaseModel):
     username: str
@@ -25,5 +25,5 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     id: int
     username: str
-    class Config:
-        orm_mode = True
+    
+    model_config = ConfigDict(from_attributes=True) 
