@@ -3,10 +3,11 @@ import json
 import os
 from typing import Optional, List
 from app.schemas import TaskRead
-
+from redis import ConnectionPool
 
 redis_host = os.getenv("REDIS_HOST", "localhost")
-redis_client = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
+redis_pool = ConnectionPool(host=redis_host, port=6379, db=0, decode_responses=True, max_connections=10000)
+redis_client = redis.Redis(connection_pool=redis_pool)
 
 CACHE_TTL = 300
 

@@ -14,3 +14,7 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 8192

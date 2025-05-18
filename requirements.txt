@@ -3,6 +3,7 @@ uvicorn
 sqlalchemy
 pydantic
 passlib
+argon2-cffi
 python-jose[cryptography]
 python-multipart
 bcrypt
