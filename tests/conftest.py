@@ -6,9 +6,9 @@ from sqlalchemy.pool import StaticPool
 from typing import Generator
 import sys
 import os
-from unittest.mock import MagicMock 
+from unittest.mock import MagicMock
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
 from app.app import app, get_db
@@ -27,6 +27,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 Base.metadata.create_all(bind=engine_test)
 
+
 @pytest.fixture(scope="function")
 def db_session() -> Generator[sessionmaker, None, None]:
     Base.metadata.create_all(bind=engine_test)
@@ -37,6 +38,7 @@ def db_session() -> Generator[sessionmaker, None, None]:
         db.close()
         Base.metadata.drop_all(bind=engine_test)
 
+
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -44,21 +46,28 @@ def override_get_db():
     finally:
         db.close()
 
+
 app.dependency_overrides[get_db] = override_get_db
+
 
 @pytest.fixture(scope="module")
 def client() -> Generator[TestClient, None, None]:
     with TestClient(app) as c:
         yield c
 
+
 @pytest.fixture(scope="function")
 def test_user(db_session):
     user_data = {"username": "testuser", "password": "testpassword"}
-    user = User(username=user_data["username"], password_hash=get_password_hash(user_data["password"]))
+    user = User(
+        username=user_data["username"],
+        password_hash=get_password_hash(user_data["password"]),
+    )
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
     return user_data
+
 
 @pytest.fixture(scope="function")
 def auth_token(test_user):
@@ -67,17 +76,19 @@ def auth_token(test_user):
     )
     return access_token
 
+
 @pytest.fixture(scope="function")
 def auth_headers(auth_token):
     return {"Authorization": f"Bearer {auth_token}"}
+
 
 @pytest.fixture(autouse=True, scope="session")
 def mock_redis_globally(session_mocker):
     """Mocks redis_client for all tests in the session."""
     mock_client = MagicMock()
-    mock_client.get.return_value = None  
+    mock_client.get.return_value = None
     mock_client.setex.return_value = True
     mock_client.delete.return_value = 1
     mock_client.keys.return_value = []
-    session_mocker.patch('app.cache.redis_client', new=mock_client)
+    session_mocker.patch("app.cache.redis_client", new=mock_client)
     return mock_client

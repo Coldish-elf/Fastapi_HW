@@ -4,11 +4,13 @@ from datetime import datetime, timezone
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     password_hash = Column(String)
+
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -16,7 +18,7 @@ class Task(Base):
     title = Column(String, index=True)
     description = Column(String)
     status = Column(String, default="в ожидании")
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc)) 
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     priority = Column(Integer, default=0)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     owner = relationship("User")
