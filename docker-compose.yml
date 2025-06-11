@@ -3,18 +3,37 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5433:5432"
   
   web:
     build: .
     container_name: fastapi_hw-web
-    command: uvicorn app.app:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.app:app --host 0.0.0.0 --port 8000 --workers 4
     volumes:
       - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - redis
+      - postgres
+    environment: 
+      - SECRET_KEY=${SECRET_KEY}
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     ulimits:
       nofile:
         soft: 4096
         hard: 8192
+
+volumes:
+  postgres_data:

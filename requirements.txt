@@ -15,3 +15,4 @@ httpx
 locust
 pytest-mock
 codecov
+psycopg2-binary

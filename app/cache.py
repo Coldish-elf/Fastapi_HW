@@ -37,6 +37,9 @@ def set_cached_tasks(cache_key: str, tasks: List[TaskRead]):
 
 def invalidate_user_cache(username: str):
     pattern = f"tasks:{username}:*"
-    keys = redis_client.keys(pattern)
-    if keys:
-        redis_client.delete(*keys)
+    keys_to_delete = []
+    for key in redis_client.scan_iter(match=pattern):
+        keys_to_delete.append(key)
+    
+    if keys_to_delete:
+        redis_client.delete(*keys_to_delete)
