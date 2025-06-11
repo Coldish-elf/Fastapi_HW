@@ -64,21 +64,20 @@ POSTGRES_DB=имя_базы_данных_postgresql
 ### Запуск тестов
 Для запуска тестов выполните команду:
 ```bash
-pytest
+docker compose -f docker-compose-test.yml up
 ```
 
 ### Запуск тестов с подробным выводом
-Чтобы увидеть подробный вывод тестов, выполните:
+Чтобы увидеть подробный вывод тестов:
 ```bash
-pytest -v
+docker compose -f docker-compose-test.yml run --rm web pytest -v
 ```
 
 ### Генерация отчета о покрытии кода
-Для проверки покрытия кода выполните:
+Для проверки покрытия кода и генерации HTML-отчета:
 ```bash
-pytest --cov=app --cov-report=html
+docker compose -f docker-compose-test.yml run --rm web pytest --cov=app --cov-report=html
 ```
-После выполнения команды будет создана папка `htmlcov`, содержащая файл `index.html`. Откройте этот файл в браузере, чтобы увидеть визуализацию покрытия кода.
 
 ### Нагрузочное тестирование (Locust)
 
