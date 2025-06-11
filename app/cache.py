@@ -13,7 +13,6 @@ redis_client = redis.Redis(connection_pool=redis_pool)
 
 CACHE_TTL = 300
 
-
 def generate_cache_key(
     username: str,
     sort_by: Optional[str] = None,

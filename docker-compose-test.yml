@@ -16,13 +16,10 @@ services:
       - "5432:5432"
   
   web:
-    build: .
-    container_name: fastapi_hw-web
-    command: uvicorn app.app:app --host 0.0.0.0 --port 8000 --workers 4
-    volumes:
-      - .:/code
-    ports:
-      - "8000:8000"
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: test-fastapi
     depends_on:
       - redis
       - postgres
@@ -30,7 +27,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - REDIS_HOST=redis
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-
+    volumes:
+      - .:/code
 
 volumes:
   postgres_data:
