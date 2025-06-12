@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-text antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded shadow-sm hover:shadow-md transition-shadow duration-300;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-to-r from-primary-dark to-primary-light;
+  }
+}

@@ -63,7 +63,10 @@ def login(
 ):
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+        )
     access_token = create_access_token({"sub": user.username}, timedelta(minutes=30))
     return {"access_token": access_token, "token_type": "bearer"}
 

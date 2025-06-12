@@ -172,3 +172,31 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# Node.js
+node_modules/
+dist/
+*.log
+
+# Environment files
+.env
+*.env
+
+# IDE/Editor files
+.vscode/
+.idea/
+.DS_Store
+
+# Redis dump files
+dump.rdb
+appendonly.aof
+
+# Other
+*.lock
