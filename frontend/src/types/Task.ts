@@ -14,4 +14,4 @@ export interface TaskCreate {
   priority?: number;
 }
 
-export type SortOption = 'title' | 'status' | 'created_at' | 'priority' | null;
+export type SortOption = "title" | "status" | "created_at" | "priority" | null;

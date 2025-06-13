@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,27 +11,27 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
+      if (event.key === "Escape" && isOpen) {
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
-    
+    window.addEventListener("keydown", handleEscape);
+
     return () => {
-      window.removeEventListener('keydown', handleEscape);
+      window.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen, onClose]);
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
-    
+
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -39,36 +39,56 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+          <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black bg-opacity-50"
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm"
               onClick={onClose}
             />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25, type: 'spring', bounce: 0.25 }}
-              className="relative transform rounded-lg bg-white p-6 text-left shadow-xl 
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{
+                duration: 0.25,
+                type: "spring",
+                stiffness: 260,
+                damping: 20,
+              }}
+              className="relative transform rounded-lg bg-light-foreground dark:bg-dark-foreground 
+                        p-6 text-left shadow-xl 
                         transition-all w-full max-w-md sm:max-w-lg md:max-w-xl"
             >
-              <div className="flex justify-between items-center mb-5">
-                <h3 className="text-lg font-semibold text-text">{title}</h3>
-                <button 
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-light-text dark:text-dark-text">
+                  {title}
+                </h3>
+                <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="p-1 rounded-full text-light-text-secondary hover:text-light-text dark:text-dark-text-secondary dark:hover:text-dark-text 
+                             hover:bg-light-muted dark:hover:bg-dark-muted focusable transition-colors"
+                  aria-label="Close modal"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
-              
+
               <div className="mt-2">{children}</div>
             </motion.div>
           </div>

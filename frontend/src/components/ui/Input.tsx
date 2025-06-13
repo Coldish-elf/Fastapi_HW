@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef } from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,59 +10,82 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, fullWidth = false, leftIcon, rightIcon, className = '', ...props }, ref) => {
-    const inputStyles = `
-      block px-4 py-2.5 w-full 
-      bg-white border rounded-md 
-      text-sm text-text focus:outline-none
-      ${error ? 'border-red-500 focus:ring-red-500/50 focus:border-red-500' : 
-      'border-gray-300 focus:ring-primary/50 focus:border-primary'}
-      ${leftIcon ? 'pl-10' : ''}
-      ${rightIcon ? 'pr-10' : ''}
+  (
+    {
+      label,
+      error,
+      helperText,
+      fullWidth = false,
+      leftIcon,
+      rightIcon,
+      className = "",
+      type = "text",
+      ...props
+    },
+    ref
+  ) => {
+    const baseInputStyles = `
+      block w-full appearance-none
+      bg-transparent 
+      text-sm text-light-text dark:text-dark-text 
+      placeholder-light-text-secondary/70 dark:placeholder-dark-text-secondary/70
+      focus:outline-none
     `;
 
-    const widthStyles = fullWidth ? 'w-full' : '';
+    const containerStyles = `
+      flex items-center px-3 py-2.5 w-full 
+      bg-light-muted dark:bg-dark-muted 
+      border border-light-border dark:border-dark-border 
+      rounded-md transition-colors duration-200 ease-in-out
+      focus-within:ring-2 focus-within:ring-primary focus-within:border-primary
+      dark:focus-within:border-primary
+      ${
+        error
+          ? "!border-danger focus-within:!ring-danger focus-within:!border-danger"
+          : ""
+      }
+    `;
+
+    const widthStyles = fullWidth ? "w-full" : "";
 
     return (
       <div className={`${widthStyles} ${className}`}>
         {label && (
-          <label className="block mb-1 text-sm font-medium text-text">
+          <label className="block mb-1.5 text-sm font-medium text-light-text dark:text-dark-text">
             {label}
           </label>
         )}
-        
-        <div className="relative">
+
+        <div className={`relative ${containerStyles}`}>
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+            <div className="flex items-center pr-2 text-light-text-secondary dark:text-dark-text-secondary">
               {leftIcon}
             </div>
           )}
-          
-          <input
-            ref={ref}
-            className={inputStyles}
-            {...props}
-          />
-          
+
+          <input ref={ref} type={type} className={baseInputStyles} {...props} />
+
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            <div className="flex items-center pl-2">
+              {" "}
+              {/* Ensure this div doesn't prevent input focus */}
               {rightIcon}
             </div>
           )}
         </div>
-        
-        {error && (
-          <p className="mt-1 text-xs text-red-600">{error}</p>
-        )}
-        
+
+        {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
+
         {helperText && !error && (
-          <p className="mt-1 text-xs text-gray-500">{helperText}</p>
+          <p className="mt-1.5 text-xs text-light-text-secondary dark:text-dark-text-secondary">
+            {helperText}
+          </p>
         )}
       </div>
     );
   }
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 export default Input;

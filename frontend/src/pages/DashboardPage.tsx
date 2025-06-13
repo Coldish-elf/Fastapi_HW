@@ -1,26 +1,34 @@
-import { useAuth } from '@/hooks/useAuth';
-import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
-import { Task, TaskCreate, SortOption } from '@/types/Task';
-import Header from '@/components/layout/Header';
-import TaskCard from '@/components/tasks/TaskCard';
-import TaskForm from '@/components/tasks/TaskForm';
-import Button from '@/components/ui/Button';
-import Modal from '@/components/layout/Modal';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-
+import { useAuth } from "@/hooks/useAuth";
+import {
+  useTasks,
+  useCreateTask,
+  useUpdateTask,
+  useDeleteTask,
+} from "@/hooks/useTasks";
+import { Task, TaskCreate, SortOption } from "@/types/Task";
+import Header from "@/components/layout/Header";
+import TaskCard from "@/components/tasks/TaskCard";
+import TaskForm from "@/components/tasks/TaskForm";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/layout/Modal";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>(null);
   const [topTasks, setTopTasks] = useState<number | undefined>(undefined);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
-  
-  const { data: tasks = [], isLoading, refetch } = useTasks(sortBy, search, topTasks);
+
+  const {
+    data: tasks = [],
+    isLoading,
+    refetch,
+  } = useTasks(sortBy, search, topTasks);
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
@@ -66,38 +74,59 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header 
-        onSearchChange={setSearch}
-        searchValue={search}
-      />
-      
+    <div className="min-h-screen bg-background dark:bg-dark-background transition-colors duration-300">
+      <Header onSearchChange={setSearch} searchValue={search} />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl font-bold text-text">
-            {user?.username ? `Задачи пользователя ${user.username}` : 'Мои задачи'}
+          <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">
+            {user?.username
+              ? `Задачи пользователя ${user.username}`
+              : "Мои задачи"}
           </h1>
-          
-          <Button 
+
+          <Button
             onClick={() => setIsCreateModalOpen(true)}
             icon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             }
           >
             Создать задачу
           </Button>
         </div>
-        
-        <div className="mb-6 bg-white p-4 rounded shadow-sm">
-          <div className="flex flex-wrap gap-4">
+
+        <div className="mb-6 bg-light-foreground dark:bg-dark-background dark:border dark:border-slate-800 p-4 rounded-lg shadow-sm transition-colors duration-300">
+          <div className="flex flex-wrap gap-4 items-center">
+            {" "}
+            {/* Added items-center for better alignment */}
             <div className="w-full sm:w-auto">
-              <label className="block mb-2 text-sm font-medium text-text">Сортировка</label>
+              <label className="block mb-1.5 text-sm font-medium text-light-text dark:text-dark-text">
+                Сортировка
+              </label>{" "}
+              {/* Adjusted margin */}
               <select
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                value={sortBy || ''}
-                onChange={(e) => setSortBy(e.target.value as SortOption || null)}
+                className="block w-full px-3 py-2 border border-light-border dark:border-dark-border rounded-md text-sm 
+                           bg-light-muted dark:bg-dark-muted 
+                           text-light-text dark:text-dark-text 
+                           focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
+                           dark:focus:ring-primary dark:focus:border-primary 
+                           transition-colors duration-300"
+                value={sortBy || ""}
+                onChange={(e) =>
+                  setSortBy((e.target.value as SortOption) || null)
+                }
               >
                 <option value="">Без сортировки</option>
                 <option value="title">По названию</option>
@@ -106,10 +135,14 @@ const DashboardPage = () => {
                 <option value="priority">По приоритету</option>
               </select>
             </div>
-            
             <div className="w-full sm:w-auto">
-              <label className="block mb-2 text-sm font-medium text-text">
-                ТОП задач: {topTasks || 'все'}
+              <label className="block mb-1.5 text-sm font-medium text-light-text dark:text-dark-text">
+                {" "}
+                {/* Adjusted margin */}
+                ТОП задач:{" "}
+                <span className="font-semibold text-primary">
+                  {topTasks || "все"}
+                </span>
               </label>
               <input
                 type="range"
@@ -121,15 +154,15 @@ const DashboardPage = () => {
                   const value = parseInt(e.target.value);
                   setTopTasks(value === 0 ? undefined : value);
                 }}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer accent-primary dark:accent-primary"
               />
             </div>
           </div>
         </div>
-        
+
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-dark-primary"></div>
           </div>
         ) : tasks.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -155,7 +188,7 @@ const DashboardPage = () => {
         ) : (
           <div className="text-center py-12">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -167,21 +200,21 @@ const DashboardPage = () => {
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
               />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Задачи не найдены</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-dark-text">
+              Задачи не найдены
+            </h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Начните с создания новой задачи.
             </p>
             <div className="mt-6">
-              <Button
-                onClick={() => setIsCreateModalOpen(true)}
-              >
+              <Button onClick={() => setIsCreateModalOpen(true)}>
                 Создать задачу
               </Button>
             </div>
           </div>
         )}
       </main>
-      
+
       {/* Create Task Modal */}
       <Modal
         isOpen={isCreateModalOpen}
@@ -194,7 +227,7 @@ const DashboardPage = () => {
           onCancel={() => setIsCreateModalOpen(false)}
         />
       </Modal>
-      
+
       {/* Edit Task Modal */}
       <Modal
         isOpen={!!editingTask}
@@ -210,7 +243,7 @@ const DashboardPage = () => {
           />
         )}
       </Modal>
-      
+
       {/* Confirm Delete Modal */}
       <Modal
         isOpen={isConfirmDeleteOpen}
@@ -221,11 +254,12 @@ const DashboardPage = () => {
         title="Удалить задачу"
       >
         <div className="mt-2">
-          <p className="text-sm text-gray-500">
-            Вы уверены, что хотите удалить эту задачу? Это действие нельзя отменить.
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Вы уверены, что хотите удалить эту задачу? Это действие нельзя
+            отменить.
           </p>
         </div>
-        
+
         <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
           <Button
             variant="ghost"
