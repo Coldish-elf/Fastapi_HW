@@ -12,7 +12,7 @@ import TaskForm from "@/components/tasks/TaskForm";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/layout/Modal";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -25,13 +25,24 @@ const DashboardPage = () => {
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
 
   const {
-    data: tasks = [],
+    data: tasks,
     isLoading,
     refetch,
   } = useTasks(sortBy, search, topTasks);
+
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
+
+  const stabilizedTasks = useMemo(() => tasks || [], [tasks]);
+
+  useEffect(() => {
+    console.log("DashboardPage rendered");
+  }, []);
+
+  useEffect(() => {
+    console.log("Tasks updated:", { tasks, stabilizedTasks, isLoading });
+  }, [tasks, stabilizedTasks, isLoading]);
 
   const handleCreateTask = (data: TaskCreate) => {
     createTask.mutate(data, {
@@ -74,7 +85,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-dark-background transition-colors duration-300">
+    <div className="min-h-screen bg-background dark:bg-dark-background">
       <Header onSearchChange={setSearch} searchValue={search} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -107,22 +118,18 @@ const DashboardPage = () => {
           </Button>
         </div>
 
-        <div className="mb-6 bg-light-foreground dark:bg-dark-background dark:border dark:border-slate-800 p-4 rounded-lg shadow-sm transition-colors duration-300">
+        <div className="mb-6 bg-light-foreground dark:bg-dark-background dark:border dark:border-slate-800 p-4 rounded-lg shadow-sm">
           <div className="flex flex-wrap gap-4 items-center">
-            {" "}
-            {/* Added items-center for better alignment */}
             <div className="w-full sm:w-auto">
               <label className="block mb-1.5 text-sm font-medium text-light-text dark:text-dark-text">
                 Сортировка
-              </label>{" "}
-              {/* Adjusted margin */}
+              </label>
               <select
                 className="block w-full px-3 py-2 border border-light-border dark:border-dark-border rounded-md text-sm 
                            bg-light-muted dark:bg-dark-muted 
                            text-light-text dark:text-dark-text 
                            focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
-                           dark:focus:ring-primary dark:focus:border-primary 
-                           transition-colors duration-300"
+                           dark:focus:ring-primary dark:focus:border-primary"
                 value={sortBy || ""}
                 onChange={(e) =>
                   setSortBy((e.target.value as SortOption) || null)
@@ -137,8 +144,6 @@ const DashboardPage = () => {
             </div>
             <div className="w-full sm:w-auto">
               <label className="block mb-1.5 text-sm font-medium text-light-text dark:text-dark-text">
-                {" "}
-                {/* Adjusted margin */}
                 ТОП задач:{" "}
                 <span className="font-semibold text-primary">
                   {topTasks || "все"}
@@ -160,21 +165,20 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {isLoading ? (
+        {isLoading || !tasks ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-dark-primary"></div>
           </div>
-        ) : tasks.length > 0 ? (
+        ) : stabilizedTasks.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {tasks.map((task) => (
+            <AnimatePresence mode="wait">
+              {stabilizedTasks.map((task) => (
                 <motion.div
                   key={task.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <TaskCard
                     task={task}
@@ -217,6 +221,7 @@ const DashboardPage = () => {
 
       {/* Create Task Modal */}
       <Modal
+        key="create-modal"
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         title="Создать новую задачу"
@@ -230,6 +235,7 @@ const DashboardPage = () => {
 
       {/* Edit Task Modal */}
       <Modal
+        key="edit-modal"
         isOpen={!!editingTask}
         onClose={() => setEditingTask(null)}
         title="Редактировать задачу"
@@ -246,6 +252,7 @@ const DashboardPage = () => {
 
       {/* Confirm Delete Modal */}
       <Modal
+        key="delete-modal"
         isOpen={isConfirmDeleteOpen}
         onClose={() => {
           setIsConfirmDeleteOpen(false);

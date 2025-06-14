@@ -1,8 +1,12 @@
-import { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { TypeAnimation } from "react-type-animation";
+import Particles from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { register as registerUser } from "@/services/authService";
@@ -55,10 +59,12 @@ type FormData = {
   username: string;
   password: string;
 };
+
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -68,14 +74,20 @@ const LoginPage = () => {
     formState: { errors },
     reset,
     setError,
-    trigger,
     clearErrors,
   } = useForm<FormData>({
     mode: "onChange",
+    defaultValues: { username: "", password: "" },
   });
+
+  useEffect(() => {
+    setServerError(null);
+    clearErrors(["username", "password"]);
+  }, [isLogin, clearErrors]);
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
+    setServerError(null);
 
     try {
       if (isLogin) {
@@ -89,33 +101,22 @@ const LoginPage = () => {
         reset({ username: "", password: "" });
       }
     } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail || "Произошла ошибка. Попробуйте снова.";
       if (isLogin) {
-        const loginErrorMessage =
-          error.response?.data?.detail ||
-          "Неверный логин или пароль. Попробуйте ещё раз.";
-        toast.error(loginErrorMessage);
+        toast.error(errorMessage);
       } else {
-        const detailMessage = error.response?.data?.detail;
-        const isUsernameTakenError =
-          detailMessage &&
-          (detailMessage.toLowerCase().includes("username") ||
-            detailMessage.toLowerCase().includes("имя пользователя")) &&
-          (detailMessage.toLowerCase().includes("taken") ||
-            detailMessage.toLowerCase().includes("exists") ||
-            detailMessage.toLowerCase().includes("занято"));
-
-        if (isUsernameTakenError) {
-          setError("username", {
-            type: "server",
-            message: detailMessage,
-          });
+        if (
+          errorMessage.toLowerCase().includes("username") &&
+          (errorMessage.toLowerCase().includes("taken") ||
+            errorMessage.toLowerCase().includes("exists"))
+        ) {
+          setError("username", { type: "server", message: errorMessage });
         } else {
-          const genericRegisterMessage =
-            "Ошибка регистрации. Проверьте введенные данные или попробуйте другое имя пользователя.";
-          toast.error(detailMessage || genericRegisterMessage);
+          toast.error(errorMessage);
         }
       }
-      console.error("Auth error:", error);
+      setServerError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -146,85 +147,183 @@ const LoginPage = () => {
     }),
   };
 
+  const particlesInit = useCallback(async (engine: any) => {
+    await loadSlim(engine);
+  }, []);
+
+  const isMobile = window.innerWidth < 640;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-dark to-primary-light dark:from-slate-800 dark:to-dark-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-3xl font-bold text-white dark:text-dark-text-DEFAULT">
-          Управление задачами
-        </h1>
-        <h2 className="mt-2 text-center text-xl text-white dark:text-dark-text-secondary">
+    <div className="min-h-screen animated-gradient flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative isolate overflow-hidden">
+      {!isMobile && (
+        <Particles
+          init={particlesInit}
+          options={{
+            particles: {
+              number: { value: 30 },
+              move: { enable: true, speed: 1 },
+              size: { value: { min: 1, max: 3 } },
+              opacity: { value: 0.3 },
+              color: { value: "#ffffff" },
+            },
+            interactivity: {
+              events: {
+                onHover: { enable: true, mode: "repulse" },
+              },
+            },
+            background: {
+              color: "transparent",
+            },
+          }}
+          className="absolute inset-0 z-0 pointer-events-none"
+        />
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sm:mx-auto sm:w-full sm:max-w-md z-10 relative"
+      >
+        <TypeAnimation
+          sequence={["Управление задачами", 2000, "Организуй работу", 2000, "Достигай целей", 2000, "Повысь продуктивность", 2000]}
+          wrapper="h1"
+          cursor={false}
+          repeat={Infinity}
+          speed={50}
+          className="text-center text-3xl font-bold text-white dark:text-dark-text-DEFAULT min-h-[3rem] flex items-center justify-center"
+          style={{ minHeight: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        />
+        <motion.h2
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="mt-2 text-center text-xl text-white dark:text-dark-text-secondary"
+        >
           {isLogin
             ? "Войдите в свою учетную запись"
             : "Создайте новую учетную запись"}
-        </h2>
-      </div>
+        </motion.h2>
+      </motion.div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-light-foreground dark:bg-dark-foreground py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 transition-colors duration-300">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10 relative"
+      >
+        <div className="card glassmorphism py-8 px-4 sm:rounded-lg sm:px-10" style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }}>
+          <AnimatePresence>
+            {serverError && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-md text-sm"
+                role="alert"
+                aria-live="assertive"
+              >
+                {serverError}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <Input
-              label="Имя пользователя"
-              fullWidth
-              error={errors.username?.message}
-              {...register("username", usernameValidationRules)}
-            />
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+            >
+              <Input
+                label="Имя пользователя"
+                fullWidth
+                error={errors.username?.message}
+                aria-describedby={
+                  errors.username ? "username-error" : undefined
+                }
+                {...register("username", usernameValidationRules)}
+              />
+            </motion.div>
 
-            <Input
-              label="Пароль"
-              type={showPassword ? "text" : "password"}
-              fullWidth
-              error={errors.password?.message}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-light-text-secondary hover:text-light-text dark:text-dark-text-secondary dark:hover:text-dark-text-DEFAULT focus:outline-none transition-colors duration-150"
-                  aria-label={
-                    showPassword ? "Скрыть пароль" : "Показать пароль"
-                  }
-                >
-                  {showPassword ? (
-                    <EyeIcon className="text-current" />
-                  ) : (
-                    <EyeSlashIcon className="text-current" />
-                  )}
-                </button>
-              }
-              {...register("password", passwordValidationRules)}
-            />
+             <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+            >
+              <Input
+                label="Пароль"
+                type={showPassword ? "text" : "password"}
+                fullWidth
+                error={errors.password?.message}
+                aria-describedby={
+                  errors.password ? "password-error" : undefined
+                }
+                rightIcon={
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-light-text-secondary hover:text-light-text dark:text-dark-text-secondary dark:hover:text-dark-text-DEFAULT focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-opacity-50 rounded p-1"
+                    aria-label={
+                      showPassword ? "Скрыть пароль" : "Показать пароль"
+                    }
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    style={{ background: 'transparent' }}
+                  >
+                    {showPassword ? (
+                      <EyeIcon className="text-current" />
+                    ) : (
+                      <EyeSlashIcon className="text-current" />
+                    )}
+                  </motion.button>
+                }
+                {...register("password", passwordValidationRules)}
+              />
+            </motion.div>
 
-            <div>
-              <Button type="submit" fullWidth isLoading={isLoading}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              animate={isLoading ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ repeat: isLoading ? Infinity : 0, duration: 0.8 }}
+            >
+              <Button
+                type="submit"
+                fullWidth
+                isLoading={isLoading}
+                variant="primary"
+                size="md"
+              >
                 {isLogin ? "Войти" : "Зарегистрироваться"}
               </Button>
-            </div>
+            </motion.div>
           </form>
 
           <div className="mt-6">
-            <button
+            <motion.button
               type="button"
-              className="w-full text-center text-sm text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary focusable transition-colors duration-300"
-              onClick={async () => {
+              className="w-full text-center text-sm text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-opacity-50 rounded p-2"
+              onClick={() => {
                 const newIsLogin = !isLogin;
                 setIsLogin(newIsLogin);
-
                 clearErrors(["username", "password"]);
-
-                reset(
-                  { username: "", password: "" },
-                  { keepErrors: false, keepIsValid: false }
-                );
+                reset({ username: "", password: "" });
               }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label={isLogin ? "Перейти к регистрации" : "Перейти к входу"}
+              style={{ background: 'transparent' }}
             >
               {isLogin
                 ? "Нет аккаунта? Зарегистрироваться"
                 : "Уже есть аккаунт? Войти"}
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
-export default LoginPage;
+export default React.memo(LoginPage);

@@ -66,11 +66,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input ref={ref} type={type} className={baseInputStyles} {...props} />
 
           {rightIcon && (
-            <div className="flex items-center pl-2">
-              {" "}
-              {/* Ensure this div doesn't prevent input focus */}
-              {rightIcon}
-            </div>
+            <div className="flex items-center pl-2">{rightIcon}</div>
           )}
         </div>
 

@@ -1,6 +1,5 @@
 import React from "react";
 import { Task } from "@/types/Task";
-import { motion } from "framer-motion";
 import { formatDistanceToNow, parseISO, format } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -40,14 +39,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
     : "";
 
   return (
-    <motion.div
-      className="card relative pl-6 p-4 shadow-sm dark:bg-dark-card dark:border-dark-border"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      whileHover={{ y: -2, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
-      transition={{ duration: 0.2 }}
-    >
+    <div className="relative pl-6 p-4 shadow-sm dark:bg-dark-card dark:border-dark-border">
       <div className={priorityBarStyle} />
 
       <div className="flex justify-between items-start">
@@ -60,8 +52,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
         <span
           className={`px-2 py-1 text-xs font-medium rounded-full text-white ${statusColor}`}
         >
-          {" "}
-          {/* Status colors should have enough contrast */}
           {task.status}
         </span>
       </div>
@@ -86,19 +76,19 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
         <div className="flex space-x-2">
           <button
             onClick={() => onEdit(task)}
-            className="text-sm text-primary dark:text-dark-primary hover:text-primary-light dark:hover:text-dark-primary-light transition-colors"
+            className="text-sm text-primary dark:text-dark-primary hover:text-primary-light dark:hover:text-dark-primary-light"
           >
             Редактировать
           </button>
           <button
             onClick={() => onDelete(task.id)}
-            className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500 transition-colors"
+            className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500"
           >
             Удалить
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

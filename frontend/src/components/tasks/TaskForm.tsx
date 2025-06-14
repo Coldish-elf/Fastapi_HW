@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Task, TaskCreate } from "@/types/Task";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
@@ -23,6 +23,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
     register,
     handleSubmit,
     formState: { errors },
+    control,
+    watch,
   } = useForm<TaskCreate>({
     defaultValues: {
       title: task?.title || "",
@@ -31,6 +33,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
       priority: task?.priority || 0,
     },
   });
+
+  const priority = watch("priority");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -50,8 +54,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
         </label>
         <textarea
           className="block w-full px-4 py-2.5 bg-white dark:bg-slate-700 border rounded-md 
-                   border-gray-300 dark:border-dark-border text-sm text-text dark:text-dark-text placeholder-gray-400 dark:placeholder-gray-500
-                   focus:outline-none focus:ring-primary/50 dark:focus:ring-dark-primary/50 focus:border-primary dark:focus:border-dark-primary transition-colors duration-300"
+                     border-gray-300 dark:border-dark-border text-sm text-text dark:text-dark-text 
+                     placeholder-gray-400 dark:placeholder-gray-500
+                     focus:outline-none focus:ring-primary/50 dark:focus:ring-dark-primary/50 
+                     focus:border-primary dark:focus:border-dark-primary"
           rows={3}
           placeholder="Введите описание задачи"
           {...register("description")}
@@ -64,8 +70,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
         </label>
         <select
           className="block w-full px-4 py-2.5 bg-white dark:bg-slate-700 border rounded-md 
-                   border-gray-300 dark:border-dark-border text-sm text-text dark:text-dark-text
-                   focus:outline-none focus:ring-primary/50 dark:focus:ring-dark-primary/50 focus:border-primary dark:focus:border-dark-primary transition-colors duration-300"
+                     border-gray-300 dark:border-dark-border text-sm text-text dark:text-dark-text
+                     focus:outline-none focus:ring-primary/50 dark:focus:ring-dark-primary/50 
+                     focus:border-primary dark:focus:border-dark-primary"
           {...register("status")}
         >
           <option value="в ожидании">В ожидании</option>
@@ -77,26 +84,24 @@ const TaskForm: React.FC<TaskFormProps> = ({
       <div>
         <label className="flex justify-between mb-1 text-sm font-medium text-text dark:text-dark-text">
           <span>Приоритет: </span>
-          <output
-            className="text-primary dark:text-dark-primary font-bold"
-            id="priority-value"
-          >
-            {task?.priority || 0}
-          </output>{" "}
-          {/* Initialize output */}
+          <output className="text-primary dark:text-dark-primary font-bold">
+            {priority}
+          </output>
         </label>
-        <input
-          type="range"
-          min="0"
-          max="10"
-          step="1"
-          className="w-full h-2 bg-gray-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-primary dark:accent-dark-primary"
-          {...register("priority", { valueAsNumber: true })}
-          onChange={(e) => {
-            document.getElementById("priority-value")!.textContent =
-              e.target.value;
-          }}
-          defaultValue={task?.priority || 0}
+        <Controller
+          name="priority"
+          control={control}
+          render={({ field }) => (
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="1"
+              className="w-full h-2 bg-gray-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer 
+                         accent-primary dark:accent-dark-primary"
+              {...field}
+            />
+          )}
         />
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
           <span>Низкий</span>

@@ -7,7 +7,7 @@
     @apply scroll-smooth;
   }
   body {
-    @apply bg-light-background text-light-text dark:bg-dark-background dark:text-dark-text antialiased font-sans transition-colors duration-300 ease-in-out;
+    @apply bg-light-background text-light-text dark:bg-dark-background dark:text-dark-text antialiased font-sans;
   }
 
   h1,
@@ -58,10 +58,45 @@
 
   .gradient-bg {
     @apply bg-gradient-to-br from-primary to-primary-dark;
-    @apply dark:from-primary-dark dark:to-slate-900; 
+    @apply dark:from-primary-dark dark:to-slate-900;
   }
 
-  .focusable {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary dark:focus-visible:ring-offset-dark-background;
+  .glassmorphism {
+    @apply bg-white/10 dark:bg-dark-foreground/10 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+
+  .animated-gradient {
+    @apply bg-gradient-to-br from-primary to-primary-dark dark:from-primary-dark dark:to-slate-900;
+    background-size: 600% 600%;
+    animation: gradientAnimation 15s ease infinite;
+    isolation: isolate;
+  }
+
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  .theme-transition {
+    @apply transition-colors duration-300 ease-in-out;
+  }
+}
+
+@layer utilities {
+  .animate-ripple {
+    animation: ripple 0.6s linear;
+  }
+
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
@@ -20,9 +20,13 @@ const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   className = "",
   disabled,
+  onClick,
   ...props
 }) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const baseStyles = `
+    relative overflow-hidden
     inline-flex items-center justify-center font-medium rounded-md
     focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary 
     dark:focus-visible:ring-offset-dark-background 
@@ -77,8 +81,32 @@ const Button: React.FC<ButtonProps> = ({
     disabled || isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
   const widthStyles = fullWidth ? "w-full" : "";
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isLoading || disabled) return;
+
+    const button = buttonRef.current;
+    if (!button) return;
+
+    const ripple = document.createElement("span");
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    ripple.className = "absolute bg-white/30 rounded-full animate-ripple";
+
+    button.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+
+    if (onClick) onClick(e);
+  };
+
   return (
     <button
+      ref={buttonRef}
       className={`
         ${baseStyles}
         ${variantStyles[variant]}
@@ -88,6 +116,7 @@ const Button: React.FC<ButtonProps> = ({
         ${className}
       `}
       disabled={disabled || isLoading}
+      onClick={handleClick}
       {...props}
     >
       {isLoading && (
@@ -114,8 +143,7 @@ const Button: React.FC<ButtonProps> = ({
       )}
       {!isLoading && icon && (
         <span className={`mr-2 ${children ? "" : "mr-0"}`}>{icon}</span>
-      )}{" "}
-      {/* Adjusted icon margin */}
+      )}
       {children}
     </button>
   );
