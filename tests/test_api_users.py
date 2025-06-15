@@ -48,7 +48,7 @@ def test_login_wrong_password(client: TestClient, test_user, db_session: Session
     response = client.post("/token", data=login_data)
     assert response.status_code == 401
     data = response.json()
-    assert data["detail"] == "Unauthorized"
+    assert data["detail"] == "Invalid username or password"
 
 
 def test_login_nonexistent_user(client: TestClient, db_session: Session):
@@ -56,4 +56,4 @@ def test_login_nonexistent_user(client: TestClient, db_session: Session):
     response = client.post("/token", data=login_data)
     assert response.status_code == 401
     data = response.json()
-    assert data["detail"] == "Unauthorized"
+    assert data["detail"] == "Invalid username or password"

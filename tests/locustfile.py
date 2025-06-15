@@ -2,7 +2,7 @@ from locust import HttpUser, User, task, between, events
 import random
 import time
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost/api"
 DEFAULT_USER_PASSWORD = "locustpassword"
 
 
