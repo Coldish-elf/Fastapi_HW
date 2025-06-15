@@ -27,15 +27,20 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
       : "bg-blue-400"
   }`;
 
+  const getLocalDate = (isoString: string) => {
+    const utcString = isoString.endsWith("Z") ? isoString : `${isoString}Z`;
+    return parseISO(utcString);
+  };
+
   const formattedDate = task.created_at
-    ? formatDistanceToNow(parseISO(task.created_at), {
+    ? formatDistanceToNow(getLocalDate(task.created_at), {
         addSuffix: true,
         locale: ru,
       })
     : "";
 
   const exactDate = task.created_at
-    ? format(parseISO(task.created_at), "dd.MM.yyyy HH:mm", { locale: ru })
+    ? format(getLocalDate(task.created_at), "dd.MM.yyyy HH:mm", { locale: ru })
     : "";
 
   return (
