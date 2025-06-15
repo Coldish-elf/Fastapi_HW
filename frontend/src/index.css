@@ -86,11 +86,32 @@
   .theme-transition {
     @apply transition-colors duration-300 ease-in-out;
   }
+  select.select-none {
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1em;
+    padding-right: 1.5rem; 
+  }
+
+  select.select-none:focus {
+    user-select: none; 
+  }
 }
 
 @layer utilities {
   .animate-ripple {
     animation: ripple 0.6s linear;
+  }
+  .select-none {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
 
   @keyframes ripple {

@@ -13,6 +13,7 @@ import Button from "@/components/ui/Button";
 import Modal from "@/components/layout/Modal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
+import toast from "react-hot-toast";
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ const DashboardPage = () => {
   const {
     data: tasks,
     isLoading,
+    isFetching,
     refetch,
   } = useTasks(sortBy, search, topTasks);
 
@@ -34,15 +36,51 @@ const DashboardPage = () => {
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
 
-  const stabilizedTasks = useMemo(() => tasks || [], [tasks]);
+  const sortedTasks = useMemo(() => {
+    if (!tasks) return [];
+    if (!sortBy) return tasks;
+    return [...tasks].sort((a, b) => {
+      switch (sortBy) {
+        case "title":
+          return a.title.localeCompare(b.title);
+        case "status":
+          return a.status.localeCompare(b.status);
+        case "created_at":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "priority":
+          return (b.priority || 0) - (a.priority || 0);
+        default:
+          return 0;
+      }
+    });
+  }, [tasks, sortBy]);
+
+  const stabilizedTasks = useMemo(() => sortedTasks, [sortedTasks]);
 
   useEffect(() => {
     console.log("DashboardPage rendered");
   }, []);
 
   useEffect(() => {
-    console.log("Tasks updated:", { tasks, stabilizedTasks, isLoading });
-  }, [tasks, stabilizedTasks, isLoading]);
+    console.log("Tasks updated:", {
+      tasks,
+      sortedTasks,
+      stabilizedTasks,
+      isLoading,
+      isFetching,
+      sortBy,
+      search,
+      topTasks,
+    });
+  }, [tasks, sortedTasks, stabilizedTasks, isLoading, isFetching, sortBy, search, topTasks]);
+
+  useEffect(() => {
+    if (isFetching && !isLoading) {
+      toast.loading("Применение сортировки...", { id: "sorting" });
+    } else {
+      toast.dismiss("sorting");
+    }
+  }, [isFetching, isLoading]);
 
   const handleCreateTask = (data: TaskCreate) => {
     createTask.mutate(data, {
@@ -129,11 +167,21 @@ const DashboardPage = () => {
                            bg-light-muted dark:bg-dark-muted 
                            text-light-text dark:text-dark-text 
                            focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
-                           dark:focus:ring-primary dark:focus:border-primary"
-                value={sortBy || ""}
-                onChange={(e) =>
-                  setSortBy((e.target.value as SortOption) || null)
-                }
+                           dark:focus:ring-primary dark:focus:border-primary select-none cursor-pointer"
+                value={sortBy ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value === "" ? null : (e.target.value as SortOption);
+                  setSortBy(value);
+                  setTimeout(() => (e.target as HTMLSelectElement).blur(), 0);
+                }}
+                onMouseDown={(e) => {
+                  if (document.activeElement === e.target) {
+                    e.preventDefault();
+                  }
+                }}
+                onFocus={(e) => {
+                  e.preventDefault();
+                }}
               >
                 <option value="">Без сортировки</option>
                 <option value="title">По названию</option>
@@ -154,7 +202,7 @@ const DashboardPage = () => {
                 min="0"
                 max="20"
                 step="1"
-                value={topTasks || 0}
+                value={topTasks ?? 0}
                 onChange={(e) => {
                   const value = parseInt(e.target.value);
                   setTopTasks(value === 0 ? undefined : value);
@@ -165,7 +213,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {isLoading || !tasks ? (
+        {isLoading || isFetching || !tasks ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-dark-primary"></div>
           </div>
@@ -262,8 +310,7 @@ const DashboardPage = () => {
       >
         <div className="mt-2">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Вы уверены, что хотите удалить эту задачу? Это действие нельзя
-            отменить.
+            Вы уверены, что хотите удалить эту задачу? Это действие нельзя отменить.
           </p>
         </div>
 
