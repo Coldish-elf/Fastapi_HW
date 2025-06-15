@@ -25,6 +25,11 @@
 
     Было выбрано кешировать именно это, чтобы уменьшить количество запросов к базе данных при повторных запросах с теми же параметрами. Кэшируются данные, которые получают задачи в определённом порядке или фильтрации, что снижает нагрузку на сервер и позволяет быстрее получить результаты.
 
+- **Frontend:**  
+  - Реализован на React с использованием Vite, Tailwind CSS и TypeScript
+  - Интегрирован с бэкендом через API-прокси
+  - Полностью контейнеризирован с использованием Docker
+  
 ## Настройка переменных окружения для Docker Compose
 
 Перед запуском приложения с использованием Docker Compose, необходимо создать файл `.env` в корневой директории  проекта.
@@ -39,24 +44,14 @@ POSTGRES_DB=имя_базы_данных_postgresql
 
 ## Установка и запуск
 
-1. Установите зависимости:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Запустите сервер:
-   ```bash
-   python main.py
-   ```
+## Установка и запуск через Docker Compose
 
-Сервер будет доступен по адресу http://localhost:8000.
-
-## Запуск через Docker Compose
-
-1. Соберите и запустите контейнеры:
-   ```bash
-   docker-compose up --build -d 
-   ```
-2. Приложение будет доступно по адресу http://localhost:8000.
+1.  Убедитесь, что Docker и Docker Compose установлены на вашем компьютере.
+2.  Соберите и запустите контейнеры:
+    ```bash
+    docker-compose up --build -d
+    ```
+3.  Приложение будет доступно по адресу http://localhost.
 
 
 ## Тестирование
@@ -108,20 +103,40 @@ Fastapi_HW\
 ├── README.md               
 ├── requirements.txt        
 ├── .gitignore              
-├── Dockerfile              
-├── docker-compose.yml      
+├── Dockerfile    
+├── Dockerfile.test          
+├── docker-compose.yml  
+├── docker-compose-test.yml   
 ├── coverage.svg            # Резльутат покрытия кода
 ├── .coveragerc             # Конфигурация для покрытия кода
 ├── .github\
 │   └── workflows\
 │       └── ci.yml          # CI/CD конфигурация для GitHub Actions
 └── app\
-   ├── __init__.py          # Инициализация пакета
-   ├── app.py               # FastAPI-приложение и маршруты
-   ├── models.py            # SQLAlchemy модели
-   ├── schemas.py           # Pydantic-схемы
-   ├── database.py          # Настройка базы данных
-   └── auth.py              # Аутентификация и шифрование
+│   ├── __init__.py          # Инициализация пакета
+│   ├── app.py               # FastAPI-приложение и маршруты
+│   ├── models.py            # SQLAlchemy модели
+│   ├── schemas.py           # Pydantic-схемы
+│   ├── database.py          # Настройка базы данных
+│   └── auth.py              # Аутентификация и шифрование
+├── frontend/               
+│   ├── Dockerfile          
+│   ├── index.html          
+│   ├── nginx.conf          
+│   ├── package.json       
+│   ├── tailwind.config.js  
+│   ├── tsconfig.json       
+│   ├── vite.config.ts      
+│   └── src/                
+│       ├── App.tsx         
+│       ├── main.tsx        
+│       ├── index.css       
+│       ├── components/     # UI компоненты
+│       ├── context/        # React Context
+│       ├── hooks/          # Пользовательские React хуки (useAuth, useTasks)
+│       ├── pages/          # Компоненты страниц (Dashboard, Login, NotFound)
+│       ├── services/       # Сервисы для взаимодействия с API
+│       └── types/          # TypeScript типы (Task, User)
 └── tests\
    ├── conftest.py          # Фикстуры для тестов
    ├── locustfile.py        # Сценарии нагрузочного тестирования
