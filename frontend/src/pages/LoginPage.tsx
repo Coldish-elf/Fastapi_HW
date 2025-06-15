@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
-import Particles from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { register as registerUser } from "@/services/authService";
@@ -147,38 +145,8 @@ const LoginPage = () => {
     }),
   };
 
-  const particlesInit = useCallback(async (engine: any) => {
-    await loadSlim(engine);
-  }, []);
-
-  const isMobile = window.innerWidth < 640;
-
   return (
     <div className="min-h-screen animated-gradient flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative isolate overflow-hidden">
-      {!isMobile && (
-        <Particles
-          init={particlesInit}
-          options={{
-            particles: {
-              number: { value: 30 },
-              move: { enable: true, speed: 1 },
-              size: { value: { min: 1, max: 3 } },
-              opacity: { value: 0.3 },
-              color: { value: "#ffffff" },
-            },
-            interactivity: {
-              events: {
-                onHover: { enable: true, mode: "repulse" },
-              },
-            },
-            background: {
-              color: "transparent",
-            },
-          }}
-          className="absolute inset-0 z-0 pointer-events-none"
-        />
-      )}
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
